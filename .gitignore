@@ -3,6 +3,11 @@
 /.pnp
 .pnp.js
 
+# Package lock files (uncomment if you want to exclude them)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
 # Testing
 /coverage
 
