@@ -1,144 +1,80 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, FileDown, Upload, Settings, Trash2, Edit } from 'lucide-react';
 import AgentConfigForm from './AgentConfigForm';
 import TaskConfigForm from './TaskConfigForm';
+import GatewayConfigForm from './GatewayConfigForm';
 
-const ConfigManagerApp = () => {
+const ConfigManagerApp = ({ 
+  configs, 
+  onSaveAgent, 
+  onDeleteAgent, 
+  onSaveTask, 
+  onDeleteTask, 
+  onSaveGateway, 
+  onSaveSystem,
+  onImportConfigs,
+  onExportAllConfigs
+}) => {
   const [activeTab, setActiveTab] = useState('agents');
-  const [configs, setConfigs] = useState({
-    agents: [],
-    scheduler: {
-      tasks: []
-    },
-    gateway: {
-      models: []
-    }
-  });
   const [editingConfig, setEditingConfig] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
+  const [editingGateway, setEditingGateway] = useState(false);
   const [isAddingNew, setIsAddingNew] = useState(false);
   
-  // Load saved configs on startup
-  useEffect(() => {
-    // This would be an API call in a real app
-    // For demo purposes, load from localStorage
-    const savedConfigs = localStorage.getItem('agentOrchestratorConfigs');
-    if (savedConfigs) {
-      try {
-        setConfigs(JSON.parse(savedConfigs));
-      } catch (error) {
-        console.error('Failed to parse saved configs:', error);
-      }
-    }
-  }, []);
-  
-  // Save configs when they change
-  useEffect(() => {
-    localStorage.setItem('agentOrchestratorConfigs', JSON.stringify(configs));
-  }, [configs]);
-  
-  // Download all configs as a zip file
-  const downloadAllConfigs = () => {
-    // In a real application, this would create a zip file with all configs
-    alert('In a real app, this would download a zip file with all configurations');
-  };
-  
-  // Import configs from file
+  // Handle file import
   const handleConfigImport = (e) => {
-    const files = e.target.files;
-    if (files.length === 0) return;
-    
-    // Read the file
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedConfigs = JSON.parse(e.target.result);
-        setConfigs(prev => ({
-          ...prev,
-          ...importedConfigs
-        }));
-        alert('Configurations imported successfully');
-      } catch (error) {
-        console.error('Failed to parse imported configs:', error);
-        alert('Failed to import configurations. Invalid format.');
-      }
-    };
-    reader.readAsText(files[0]);
-  };
-  
-  // Save agent configuration
-  const saveAgentConfig = (agentConfig) => {
-    if (isAddingNew) {
-      setConfigs(prev => ({
-        ...prev,
-        agents: [...prev.agents, agentConfig]
-      }));
-    } else {
-      setConfigs(prev => ({
-        ...prev,
-        agents: prev.agents.map(agent => 
-          agent.id === agentConfig.id ? agentConfig : agent
-        )
-      }));
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          onImportConfigs(imported);
+        } catch (error) {
+          console.error("Failed to parse JSON", error);
+          alert("Invalid JSON file");
+        }
+      };
+      reader.readAsText(file);
     }
-    setEditingConfig(null);
-    setIsAddingNew(false);
   };
-  
-  // Delete agent configuration
-  const deleteAgentConfig = (agentId) => {
-    if (confirm('Are you sure you want to delete this agent?')) {
-      setConfigs(prev => ({
-        ...prev,
-        agents: prev.agents.filter(agent => agent.id !== agentId)
-      }));
+
+  // Save agent configuration
+  const handleSaveAgent = async (agentConfig) => {
+    const success = await onSaveAgent(agentConfig);
+    if (success) {
+      setEditingConfig(null);
+      setIsAddingNew(false);
     }
   };
   
   // Save task configuration
-  const saveTaskConfig = (taskConfig) => {
-    if (isAddingNew) {
-      setConfigs(prev => ({
-        ...prev,
-        scheduler: {
-          ...prev.scheduler,
-          tasks: [...prev.scheduler.tasks, taskConfig]
-        }
-      }));
-    } else {
-      setConfigs(prev => ({
-        ...prev,
-        scheduler: {
-          ...prev.scheduler,
-          tasks: prev.scheduler.tasks.map(task => 
-            task.id === taskConfig.id ? taskConfig : task
-          )
-        }
-      }));
+  const handleSaveTask = async (taskConfig) => {
+    const success = await onSaveTask(taskConfig);
+    if (success) {
+      setEditingTask(null);
+      setIsAddingNew(false);
     }
-    setEditingTask(null);
-    setIsAddingNew(false);
   };
-  
-  // Delete task configuration
-  const deleteTaskConfig = (taskId) => {
-    if (confirm('Are you sure you want to delete this task?')) {
-      setConfigs(prev => ({
-        ...prev,
-        scheduler: {
-          ...prev.scheduler,
-          tasks: prev.scheduler.tasks.filter(task => task.id !== taskId)
-        }
-      }));
+
+  // Save gateway configuration
+  const handleSaveGateway = async (gatewayConfig) => {
+    const success = await onSaveGateway(gatewayConfig);
+    if (success) {
+      setEditingGateway(false);
     }
+  };
+
+  // Save system configuration
+  const handleSaveSystem = async () => {
+    await onSaveSystem(configs.system);
   };
   
   // Render agent configurations list
   const renderAgentsList = () => {
-    if (configs.agents.length === 0) {
+    if (!configs.agents || configs.agents.length === 0) {
       return (
         <div className="text-center py-8 text-gray-500">
           No agents configured yet. Click "Add Agent" to create one.
@@ -163,7 +99,7 @@ const ConfigManagerApp = () => {
                   <Edit size={16} />
                 </button>
                 <button 
-                  onClick={() => deleteAgentConfig(agent.id)}
+                  onClick={() => onDeleteAgent(agent.id)}
                   className="text-gray-500 hover:text-red-600"
                 >
                   <Trash2 size={16} />
@@ -223,7 +159,7 @@ const ConfigManagerApp = () => {
                   <Edit size={16} />
                 </button>
                 <button 
-                  onClick={() => deleteTaskConfig(task.id)}
+                  onClick={() => onDeleteTask(task.id)}
                   className="text-gray-500 hover:text-red-600"
                 >
                   <Trash2 size={16} />
@@ -262,6 +198,42 @@ const ConfigManagerApp = () => {
     );
   };
   
+  // Render models list
+  const renderModelsList = () => {
+    if (!configs.gateway.models || configs.gateway.models.length === 0) {
+      return (
+        <div className="text-center py-8 text-gray-500">
+          No models configured yet. Use the Gateway Config form to add models.
+        </div>
+      );
+    }
+    
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {configs.gateway.models.map((model, index) => (
+          <Card key={index} className="overflow-hidden">
+            <CardHeader className="bg-gray-50 flex flex-row items-center justify-between p-4">
+              <CardTitle className="text-md truncate">{model.name}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="text-sm text-gray-500 mb-1">ID: {model.id}</div>
+              <div className="text-sm mb-2">Provider: <span className="font-medium">{model.provider}</span></div>
+              <div className="text-sm mb-2">Context Window: <span className="font-medium">{model.contextWindow}</span></div>
+              
+              <div className="mt-2 flex flex-wrap gap-2">
+                {model.capabilities && model.capabilities.map((capability, i) => (
+                  <span key={i} className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full">
+                    {capability}
+                  </span>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+  
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
@@ -272,7 +244,7 @@ const ConfigManagerApp = () => {
             <input type="file" className="hidden" onChange={handleConfigImport} accept=".json" />
           </label>
           <button 
-            onClick={downloadAllConfigs}
+            onClick={onExportAllConfigs}
             className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 py-2 px-3 rounded-md"
           >
             <FileDown size={16} /> Export All
@@ -285,7 +257,7 @@ const ConfigManagerApp = () => {
         <div className="mb-8">
           <AgentConfigForm 
             initialData={editingConfig} 
-            onSave={saveAgentConfig} 
+            onSave={handleSaveAgent} 
             onCancel={() => {
               setEditingConfig(null);
               setIsAddingNew(false);
@@ -298,7 +270,7 @@ const ConfigManagerApp = () => {
         <div className="mb-8">
           <TaskConfigForm 
             initialData={editingTask} 
-            onSave={saveTaskConfig}
+            onSave={handleSaveTask}
             onCancel={() => {
               setEditingTask(null);
               setIsAddingNew(false);
@@ -307,9 +279,19 @@ const ConfigManagerApp = () => {
           />
         </div>
       )}
+      
+      {editingGateway && (
+        <div className="mb-8">
+          <GatewayConfigForm 
+            initialData={configs.gateway} 
+            onSave={handleSaveGateway}
+            onCancel={() => setEditingGateway(false)}
+          />
+        </div>
+      )}
 
       {/* Main tabs when not editing */}
-      {!editingConfig && !editingTask && (
+      {!editingConfig && !editingTask && !editingGateway && (
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6">
             <TabsTrigger value="agents">Agents</TabsTrigger>
@@ -360,13 +342,13 @@ const ConfigManagerApp = () => {
                     <select 
                       className="w-full p-2 border rounded-md"
                       value={configs.scheduler.type || 'cron'}
-                      onChange={(e) => setConfigs(prev => ({
-                        ...prev,
+                      onChange={(e) => onSaveSystem({
+                        ...configs.system,
                         scheduler: {
-                          ...prev.scheduler,
+                          ...configs.scheduler,
                           type: e.target.value
                         }
-                      }))}
+                      })}
                     >
                       <option value="cron">Cron</option>
                       <option value="event_driven">Event Driven</option>
@@ -379,16 +361,16 @@ const ConfigManagerApp = () => {
                       type="text"
                       className="w-full p-2 border rounded-md"
                       value={configs.scheduler.resources?.memory || '512M'}
-                      onChange={(e) => setConfigs(prev => ({
-                        ...prev,
+                      onChange={(e) => onSaveSystem({
+                        ...configs.system,
                         scheduler: {
-                          ...prev.scheduler,
+                          ...configs.scheduler,
                           resources: {
-                            ...prev.scheduler.resources,
+                            ...configs.scheduler.resources,
                             memory: e.target.value
                           }
                         }
-                      }))}
+                      })}
                       placeholder="512M"
                     />
                   </div>
@@ -399,16 +381,16 @@ const ConfigManagerApp = () => {
                       type="number"
                       className="w-full p-2 border rounded-md"
                       value={configs.scheduler.resources?.maxWorkers || 10}
-                      onChange={(e) => setConfigs(prev => ({
-                        ...prev,
+                      onChange={(e) => onSaveSystem({
+                        ...configs.system,
                         scheduler: {
-                          ...prev.scheduler,
+                          ...configs.scheduler,
                           resources: {
-                            ...prev.scheduler.resources,
+                            ...configs.scheduler.resources,
                             maxWorkers: parseInt(e.target.value)
                           }
                         }
-                      }))}
+                      })}
                       placeholder="10"
                     />
                   </div>
@@ -426,13 +408,10 @@ const ConfigManagerApp = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Gateway Configuration</h2>
               <button 
-                onClick={() => {
-                  // In a real app, this would open a form to add a new model
-                  alert('In a real app, this would open a form to add a new model');
-                }}
+                onClick={() => setEditingGateway(true)}
                 className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
               >
-                <PlusCircle size={16} /> Add Model
+                <Settings size={16} /> Edit Gateway Config
               </button>
             </div>
             
@@ -444,45 +423,16 @@ const ConfigManagerApp = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Port</label>
-                    <input 
-                      type="number"
-                      className="w-full p-2 border rounded-md"
-                      value={configs.gateway.api?.port || 8080}
-                      onChange={(e) => setConfigs(prev => ({
-                        ...prev,
-                        gateway: {
-                          ...prev.gateway,
-                          api: {
-                            ...prev.gateway.api,
-                            port: parseInt(e.target.value)
-                          }
-                        }
-                      }))}
-                      placeholder="8080"
-                    />
+                    <div className="p-2 bg-gray-100 rounded-md">
+                      {configs.gateway.api?.port || 8080}
+                    </div>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium mb-1">API Key Header</label>
-                    <input 
-                      type="text"
-                      className="w-full p-2 border rounded-md"
-                      value={configs.gateway.api?.security?.apiKeyHeader || 'X-API-Key'}
-                      onChange={(e) => setConfigs(prev => ({
-                        ...prev,
-                        gateway: {
-                          ...prev.gateway,
-                          api: {
-                            ...prev.gateway.api,
-                            security: {
-                              ...prev.gateway.api?.security,
-                              apiKeyHeader: e.target.value
-                            }
-                          }
-                        }
-                      }))}
-                      placeholder="X-API-Key"
-                    />
+                    <div className="p-2 bg-gray-100 rounded-md">
+                      {configs.gateway.api?.security?.apiKeyHeader || 'X-API-Key'}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -490,62 +440,7 @@ const ConfigManagerApp = () => {
             
             <div className="mt-6">
               <h3 className="text-lg font-medium mb-4">Configured Models</h3>
-              
-              {(!configs.gateway.models || configs.gateway.models.length === 0) ? (
-                <div className="text-center py-8 text-gray-500">
-                  No models configured yet. Click "Add Model" to add one.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {configs.gateway.models.map((model, index) => (
-                    <Card key={index} className="overflow-hidden">
-                      <CardHeader className="bg-gray-50 flex flex-row items-center justify-between p-4">
-                        <CardTitle className="text-md truncate">{model.name}</CardTitle>
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => {
-                              // In a real app, this would open an edit form
-                              alert('In a real app, this would open a form to edit this model');
-                            }}
-                            className="text-gray-500 hover:text-blue-600"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button 
-                            onClick={() => {
-                              if (confirm('Are you sure you want to delete this model?')) {
-                                setConfigs(prev => ({
-                                  ...prev,
-                                  gateway: {
-                                    ...prev.gateway,
-                                    models: prev.gateway.models.filter((_, i) => i !== index)
-                                  }
-                                }));
-                              }
-                            }}
-                            className="text-gray-500 hover:text-red-600"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-4">
-                        <div className="text-sm text-gray-500 mb-1">ID: {model.id}</div>
-                        <div className="text-sm mb-2">Provider: <span className="font-medium">{model.provider}</span></div>
-                        <div className="text-sm mb-2">Context Window: <span className="font-medium">{model.contextWindow}</span></div>
-                        
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {model.capabilities && model.capabilities.map((capability, i) => (
-                            <span key={i} className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full">
-                              {capability}
-                            </span>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+              {renderModelsList()}
             </div>
           </TabsContent>
           
@@ -553,10 +448,7 @@ const ConfigManagerApp = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">System Configuration</h2>
               <button 
-                onClick={() => {
-                  // Save system configs
-                  alert('System configuration saved');
-                }}
+                onClick={handleSaveSystem}
                 className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
               >
                 <Settings size={16} /> Save Settings
@@ -575,19 +467,16 @@ const ConfigManagerApp = () => {
                       type="number"
                       className="w-full p-2 border rounded-md"
                       value={configs.system?.orchestrator?.api?.port || 8000}
-                      onChange={(e) => setConfigs(prev => ({
-                        ...prev,
-                        system: {
-                          ...prev.system,
-                          orchestrator: {
-                            ...prev.system?.orchestrator,
-                            api: {
-                              ...prev.system?.orchestrator?.api,
-                              port: parseInt(e.target.value)
-                            }
+                      onChange={(e) => onSaveSystem({
+                        ...configs.system,
+                        orchestrator: {
+                          ...configs.system?.orchestrator,
+                          api: {
+                            ...configs.system?.orchestrator?.api,
+                            port: parseInt(e.target.value)
                           }
                         }
-                      }))}
+                      })}
                       placeholder="8000"
                     />
                   </div>
@@ -598,19 +487,16 @@ const ConfigManagerApp = () => {
                       type="text"
                       className="w-full p-2 border rounded-md"
                       value={configs.system?.orchestrator?.api?.host || '0.0.0.0'}
-                      onChange={(e) => setConfigs(prev => ({
-                        ...prev,
-                        system: {
-                          ...prev.system,
-                          orchestrator: {
-                            ...prev.system?.orchestrator,
-                            api: {
-                              ...prev.system?.orchestrator?.api,
-                              host: e.target.value
-                            }
+                      onChange={(e) => onSaveSystem({
+                        ...configs.system,
+                        orchestrator: {
+                          ...configs.system?.orchestrator,
+                          api: {
+                            ...configs.system?.orchestrator?.api,
+                            host: e.target.value
                           }
                         }
-                      }))}
+                      })}
                       placeholder="0.0.0.0"
                     />
                   </div>
@@ -622,19 +508,16 @@ const ConfigManagerApp = () => {
                     type="text"
                     className="w-full p-2 border rounded-md"
                     value={configs.system?.orchestrator?.docker?.registry || 'registry.example.com'}
-                    onChange={(e) => setConfigs(prev => ({
-                      ...prev,
-                      system: {
-                        ...prev.system,
-                        orchestrator: {
-                          ...prev.system?.orchestrator,
-                          docker: {
-                            ...prev.system?.orchestrator?.docker,
-                            registry: e.target.value
-                          }
+                    onChange={(e) => onSaveSystem({
+                      ...configs.system,
+                      orchestrator: {
+                        ...configs.system?.orchestrator,
+                        docker: {
+                          ...configs.system?.orchestrator?.docker,
+                          registry: e.target.value
                         }
                       }
-                    }))}
+                    })}
                     placeholder="registry.example.com"
                   />
                 </div>
@@ -644,19 +527,16 @@ const ConfigManagerApp = () => {
                   <select
                     className="w-full p-2 border rounded-md"
                     value={configs.system?.orchestrator?.logging?.level || 'INFO'}
-                    onChange={(e) => setConfigs(prev => ({
-                      ...prev,
-                      system: {
-                        ...prev.system,
-                        orchestrator: {
-                          ...prev.system?.orchestrator,
-                          logging: {
-                            ...prev.system?.orchestrator?.logging,
-                            level: e.target.value
-                          }
+                    onChange={(e) => onSaveSystem({
+                      ...configs.system,
+                      orchestrator: {
+                        ...configs.system?.orchestrator,
+                        logging: {
+                          ...configs.system?.orchestrator?.logging,
+                          level: e.target.value
                         }
                       }
-                    }))}
+                    })}
                   >
                     <option value="DEBUG">DEBUG</option>
                     <option value="INFO">INFO</option>
