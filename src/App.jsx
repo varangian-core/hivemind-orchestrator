@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import ConfigManangerApp from './components/ConfigManangerApp';
+import ConfigManagerApp from './components/ConfigManagerApp';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
