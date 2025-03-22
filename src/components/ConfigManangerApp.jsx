@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, FileDown, Upload, Settings, Trash2, Edit } from 'lucide-react';
 import AgentConfigForm from './AgentConfigForm';
-import TaskConfigForm from './TaskConfigForm';
+import { TaskConfigForm } from './TaskConfigForm';
 import GatewayConfigForm from './GatewayConfigForm';
 
 const ConfigManagerApp = ({ 

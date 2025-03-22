@@ -76,7 +76,7 @@ const fetchTemplates = async () => {
   });
 };
 
-const TaskConfigForm = ({ onSave, onCancel, initialData, availableAgents = [] }) => {
+export const TaskConfigForm = ({ onSave, onCancel, initialData, availableAgents = [] }) => {
   const [task, setTask] = useState(initialData || {
     id: "",
     agentId: "",
