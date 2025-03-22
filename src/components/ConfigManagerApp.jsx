@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import * as Tabs from '@radix-ui/react-tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { PlusCircle, FileDown, Upload, Settings, Trash2, Edit } from 'lucide-react';
 import AgentConfigForm from './AgentConfigForm';
@@ -292,15 +292,15 @@ const ConfigManagerApp = ({
 
       {/* Main tabs when not editing */}
       {!editingConfig && !editingTask && !editingGateway && (
-        <Tabs.Root defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
-          <Tabs.List className="mb-6">
-            <Tabs.Trigger value="agents">Agents</Tabs.Trigger>
-            <Tabs.Trigger value="scheduler">Scheduler</Tabs.Trigger>
-            <Tabs.Trigger value="gateway">Gateway</Tabs.Trigger>
-            <Tabs.Trigger value="system">System</Tabs.Trigger>
-          </Tabs.List>
+        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="agents">Agents</TabsTrigger>
+            <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
+            <TabsTrigger value="gateway">Gateway</TabsTrigger>
+            <TabsTrigger value="system">System</TabsTrigger>
+          </TabsList>
           
-          <Tabs.Content value="agents" className="space-y-6">
+          <TabsContent value="agents" className="space-y-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Agent Configurations</h2>
               <button 
@@ -547,7 +547,7 @@ const ConfigManagerApp = ({
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs.Root>
+        </Tabs>
       )}
     </div>
   );
