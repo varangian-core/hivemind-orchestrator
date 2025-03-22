@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, RefreshCw, Book, AlertCircle } from 'lucide-react';
+import { RefreshCw, Book } from 'lucide-react';
 
 // Assuming this function would fetch templates from your template library
 // In a real app, this would likely be a prop passed from a parent component
@@ -336,9 +336,9 @@ export const TaskConfigForm = ({ onSave, onCancel, initialData, availableAgents 
             <div className="flex items-center gap-2 text-indigo-600">
               <Book size={16} />
               <span className="text-sm">
-                <a href="#" className="underline">
+                <button type="button" onClick={() => setIsApplyingTemplate(true)} className="underline text-indigo-600">
                   Use a template instead
-                </a>
+                </button>
               </span>
             </div>
           </div>

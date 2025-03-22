@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import ConfigManagerApp from './components/ConfigManagerApp';
 
+// eslint-disable-next-line no-unused-vars
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 const App = () => {
@@ -64,47 +65,164 @@ const App = () => {
       try {
         setIsLoading(true);
         
-        // Fetch agents
-        const agentsResponse = await fetch(`${API_BASE_URL}/api/config/agents`);
-        if (agentsResponse.ok) {
-          const agentsData = await agentsResponse.json();
-          setConfigs(prev => ({ ...prev, agents: agentsData }));
-        }
-        
-        // Fetch scheduler config
-        const schedulerResponse = await fetch(`${API_BASE_URL}/api/config/scheduler`);
-        if (schedulerResponse.ok) {
-          const schedulerData = await schedulerResponse.json();
-          setConfigs(prev => ({ ...prev, scheduler: schedulerData }));
-        }
-        
-        // Fetch gateway config
-        const gatewayResponse = await fetch(`${API_BASE_URL}/api/config/gateway`);
-        if (gatewayResponse.ok) {
-          const gatewayData = await gatewayResponse.json();
-          setConfigs(prev => ({ ...prev, gateway: gatewayData }));
-        }
-        
-        // Fetch system config
-        const systemResponse = await fetch(`${API_BASE_URL}/api/config/system`);
-        if (systemResponse.ok) {
-          const systemData = await systemResponse.json();
-          setConfigs(prev => ({ ...prev, system: systemData }));
-        }
-        
-      } catch (error) {
-        console.error('Error fetching configurations:', error);
-        toast.error('Failed to load configurations. Using default templates.');
-        
-        // If API fetch fails, load from localStorage as fallback
+        // Check for localStorage data first
         const savedConfigs = localStorage.getItem('agentOrchestratorConfigs');
         if (savedConfigs) {
           try {
             setConfigs(JSON.parse(savedConfigs));
+            return; // Use saved configs if available
           } catch (parseError) {
             console.error('Failed to parse saved configs:', parseError);
           }
         }
+
+        // For demo purposes, let's create some sample mock data
+        const mockConfigs = {
+          agents: [
+            {
+              id: "customer_support",
+              name: "Customer Support Agent",
+              model: "anthropic/claude-3-opus",
+              role: "Customer Support Specialist",
+              goal: "Help customers resolve product issues efficiently",
+              instructions: "You are a helpful customer support agent. Always be polite and empathetic.",
+              tools: [
+                { id: "knowledge_base", type: "database", description: "Access to product documentation" }
+              ],
+              functions: [
+                { id: "escalate_ticket", description: "Escalate ticket to human support" }
+              ],
+              resources: {
+                memory: "1G",
+                cpu: "0.5"
+              }
+            },
+            {
+              id: "data_analyst",
+              name: "Data Analysis Agent",
+              model: "openai/gpt-4",
+              role: "Data Analyst",
+              goal: "Analyze data and provide actionable insights",
+              instructions: "Analyze data sets and create clear visualizations and reports.",
+              tools: [
+                { id: "sql_database", type: "database", description: "Connect to data warehouse" },
+                { id: "chart_generator", type: "api", description: "Generate charts and graphs" }
+              ],
+              resources: {
+                memory: "2G",
+                cpu: "1.0"
+              }
+            }
+          ],
+          scheduler: {
+            id: 'main_scheduler',
+            type: 'cron',
+            resources: {
+              memory: '512M',
+              cpu: '0.25',
+              maxWorkers: 10
+            },
+            tasks: [
+              {
+                id: "daily_report",
+                name: "Daily Analytics Report",
+                agentId: "data_analyst",
+                schedule: {
+                  type: "cron",
+                  expression: "0 9 * * *"
+                },
+                timeout: "10m",
+                retries: 2,
+                output: {
+                  eventName: "report_generated"
+                }
+              },
+              {
+                id: "ticket_followup",
+                name: "Support Ticket Follow-up",
+                agentId: "customer_support",
+                schedule: {
+                  type: "event",
+                  event: "ticket.resolved"
+                },
+                timeout: "5m",
+                dependencies: []
+              }
+            ]
+          },
+          gateway: {
+            models: [
+              {
+                id: "anthropic/claude-3-opus",
+                name: "Claude 3 Opus",
+                provider: "anthropic",
+                endpoint: "https://api.anthropic.com/v1/messages",
+                apiKey: "ENV_ANTHROPIC_API_KEY",
+                contextWindow: 100000,
+                capabilities: ["text", "multimodal", "function_calling"],
+                parameters: {
+                  temperature: 0.7,
+                  maxTokens: 4000
+                }
+              },
+              {
+                id: "openai/gpt-4",
+                name: "GPT-4",
+                provider: "openai",
+                endpoint: "https://api.openai.com/v1/chat/completions",
+                apiKey: "ENV_OPENAI_API_KEY",
+                contextWindow: 8192,
+                capabilities: ["text", "multimodal", "function_calling", "tools"],
+                parameters: {
+                  temperature: 0.7,
+                  maxTokens: 2000
+                }
+              }
+            ],
+            api: {
+              port: 8080,
+              rateLimit: {
+                requestsPerMinute: 100,
+                burstSize: 10
+              },
+              cors: {
+                allowedOrigins: ["http://localhost:3000"],
+                allowCredentials: true
+              },
+              security: {
+                apiKeyHeader: "X-API-Key"
+              }
+            },
+            resources: {
+              memory: "1G",
+              cpu: "0.5"
+            }
+          },
+          system: {
+            orchestrator: {
+              id: "main_orchestrator",
+              api: {
+                port: 8000,
+                host: "0.0.0.0"
+              },
+              docker: {
+                registry: "registry.example.com",
+                baseImage: "agent-base:latest"
+              },
+              logging: {
+                level: "INFO",
+                format: "json"
+              }
+            }
+          }
+        };
+        
+        setConfigs(mockConfigs);
+        toast.success('Using demo data for display purposes');
+        
+      } catch (error) {
+        console.error('Error setting up configurations:', error);
+        toast.error('Failed to set up configurations. Using default templates.');
       } finally {
         setIsLoading(false);
       }
@@ -120,31 +238,18 @@ const App = () => {
     }
   }, [configs, isLoading]);
   
-  // Save agent configuration
+  // Save agent configuration (mock implementation)
   const saveAgentConfig = async (agentConfig) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/config/agents/${agentConfig.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(agentConfig)
-      });
-      
-      if (response.ok) {
-        setConfigs(prev => ({
-          ...prev,
-          agents: prev.agents.some(a => a.id === agentConfig.id)
-            ? prev.agents.map(a => a.id === agentConfig.id ? agentConfig : a)
-            : [...prev.agents, agentConfig]
-        }));
-        toast.success(`Agent "${agentConfig.name}" saved successfully`);
-        return true;
-      } else {
-        const errorData = await response.json();
-        toast.error(`Failed to save agent: ${errorData.detail || 'Unknown error'}`);
-        return false;
-      }
+      // Just update the local state directly
+      setConfigs(prev => ({
+        ...prev,
+        agents: prev.agents.some(a => a.id === agentConfig.id)
+          ? prev.agents.map(a => a.id === agentConfig.id ? agentConfig : a)
+          : [...prev.agents, agentConfig]
+      }));
+      toast.success(`Agent "${agentConfig.name}" saved successfully`);
+      return true;
     } catch (error) {
       console.error('Error saving agent config:', error);
       toast.error('Failed to save agent. Check console for details.');
@@ -152,25 +257,16 @@ const App = () => {
     }
   };
   
-  // Delete agent configuration
+  // Delete agent configuration (mock implementation)
   const deleteAgentConfig = async (agentId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/config/agents/${agentId}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        setConfigs(prev => ({
-          ...prev,
-          agents: prev.agents.filter(a => a.id !== agentId)
-        }));
-        toast.success('Agent deleted successfully');
-        return true;
-      } else {
-        const errorData = await response.json();
-        toast.error(`Failed to delete agent: ${errorData.detail || 'Unknown error'}`);
-        return false;
-      }
+      // Just update the local state directly
+      setConfigs(prev => ({
+        ...prev,
+        agents: prev.agents.filter(a => a.id !== agentId)
+      }));
+      toast.success('Agent deleted successfully');
+      return true;
     } catch (error) {
       console.error('Error deleting agent config:', error);
       toast.error('Failed to delete agent. Check console for details.');
@@ -178,39 +274,26 @@ const App = () => {
     }
   };
   
-  // Save task configuration
+  // Save task configuration (mock implementation)
   const saveTaskConfig = async (taskConfig) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/config/scheduler/tasks/${taskConfig.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(taskConfig)
+      // Just update the local state directly
+      setConfigs(prev => {
+        const existingTaskIndex = prev.scheduler.tasks.findIndex(t => t.id === taskConfig.id);
+        const updatedTasks = existingTaskIndex >= 0
+          ? prev.scheduler.tasks.map((task, index) => index === existingTaskIndex ? taskConfig : task)
+          : [...prev.scheduler.tasks, taskConfig];
+          
+        return {
+          ...prev,
+          scheduler: {
+            ...prev.scheduler,
+            tasks: updatedTasks
+          }
+        };
       });
-      
-      if (response.ok) {
-        setConfigs(prev => {
-          const existingTaskIndex = prev.scheduler.tasks.findIndex(t => t.id === taskConfig.id);
-          const updatedTasks = existingTaskIndex >= 0
-            ? prev.scheduler.tasks.map((task, index) => index === existingTaskIndex ? taskConfig : task)
-            : [...prev.scheduler.tasks, taskConfig];
-            
-          return {
-            ...prev,
-            scheduler: {
-              ...prev.scheduler,
-              tasks: updatedTasks
-            }
-          };
-        });
-        toast.success(`Task "${taskConfig.name}" saved successfully`);
-        return true;
-      } else {
-        const errorData = await response.json();
-        toast.error(`Failed to save task: ${errorData.detail || 'Unknown error'}`);
-        return false;
-      }
+      toast.success(`Task "${taskConfig.name}" saved successfully`);
+      return true;
     } catch (error) {
       console.error('Error saving task config:', error);
       toast.error('Failed to save task. Check console for details.');
@@ -218,28 +301,19 @@ const App = () => {
     }
   };
   
-  // Delete task configuration
+  // Delete task configuration (mock implementation)
   const deleteTaskConfig = async (taskId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/config/scheduler/tasks/${taskId}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        setConfigs(prev => ({
-          ...prev,
-          scheduler: {
-            ...prev.scheduler,
-            tasks: prev.scheduler.tasks.filter(t => t.id !== taskId)
-          }
-        }));
-        toast.success('Task deleted successfully');
-        return true;
-      } else {
-        const errorData = await response.json();
-        toast.error(`Failed to delete task: ${errorData.detail || 'Unknown error'}`);
-        return false;
-      }
+      // Just update the local state directly
+      setConfigs(prev => ({
+        ...prev,
+        scheduler: {
+          ...prev.scheduler,
+          tasks: prev.scheduler.tasks.filter(t => t.id !== taskId)
+        }
+      }));
+      toast.success('Task deleted successfully');
+      return true;
     } catch (error) {
       console.error('Error deleting task config:', error);
       toast.error('Failed to delete task. Check console for details.');
@@ -247,29 +321,16 @@ const App = () => {
     }
   };
   
-  // Save gateway configuration
+  // Save gateway configuration (mock implementation)
   const saveGatewayConfig = async (gatewayConfig) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/config/gateway`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(gatewayConfig)
-      });
-      
-      if (response.ok) {
-        setConfigs(prev => ({
-          ...prev,
-          gateway: gatewayConfig
-        }));
-        toast.success('Gateway configuration saved successfully');
-        return true;
-      } else {
-        const errorData = await response.json();
-        toast.error(`Failed to save gateway config: ${errorData.detail || 'Unknown error'}`);
-        return false;
-      }
+      // Just update the local state directly
+      setConfigs(prev => ({
+        ...prev,
+        gateway: gatewayConfig
+      }));
+      toast.success('Gateway configuration saved successfully');
+      return true;
     } catch (error) {
       console.error('Error saving gateway config:', error);
       toast.error('Failed to save gateway configuration. Check console for details.');
@@ -277,29 +338,16 @@ const App = () => {
     }
   };
   
-  // Save system configuration
+  // Save system configuration (mock implementation)
   const saveSystemConfig = async (systemConfig) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/config/system`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(systemConfig)
-      });
-      
-      if (response.ok) {
-        setConfigs(prev => ({
-          ...prev,
-          system: systemConfig
-        }));
-        toast.success('System configuration saved successfully');
-        return true;
-      } else {
-        const errorData = await response.json();
-        toast.error(`Failed to save system config: ${errorData.detail || 'Unknown error'}`);
-        return false;
-      }
+      // Just update the local state directly
+      setConfigs(prev => ({
+        ...prev,
+        system: systemConfig
+      }));
+      toast.success('System configuration saved successfully');
+      return true;
     } catch (error) {
       console.error('Error saving system config:', error);
       toast.error('Failed to save system configuration. Check console for details.');
@@ -307,73 +355,27 @@ const App = () => {
     }
   };
   
-  // Import configurations from file
+  // Import configurations from file (mock implementation)
   const importConfigs = async (importedConfigs) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/config/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(importedConfigs)
-      });
-      
-      if (response.ok) {
-        // Refresh configurations after import
-        const updatedConfigs = await response.json();
-        setConfigs(updatedConfigs);
-        toast.success('Configurations imported successfully');
-        return true;
-      } else {
-        const errorData = await response.json();
-        toast.error(`Failed to import configurations: ${errorData.detail || 'Unknown error'}`);
-        return false;
-      }
-    } catch (error) {
-      console.error('Error importing configurations:', error);
-      toast.error('Failed to import configurations. Check console for details.');
-      
-      // If API call fails, still update local state
+      // Just update the local state directly
       setConfigs(prev => ({
         ...prev,
         ...importedConfigs
       }));
-      toast.success('Configurations imported locally (API unreachable)');
+      toast.success('Configurations imported successfully');
       return true;
+    } catch (error) {
+      console.error('Error importing configurations:', error);
+      toast.error('Failed to import configurations. Check console for details.');
+      return false;
     }
   };
   
-  // Export all configurations
+  // Export all configurations (mock implementation)
   const exportAllConfigs = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/config/export`);
-      
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'agent-orchestrator-configs.zip';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        return true;
-      } else {
-        // Fallback to browser-based JSON export
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(configs, null, 2));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "agent-orchestrator-configs.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-        return true;
-      }
-    } catch (error) {
-      console.error('Error exporting configurations:', error);
-      
-      // Fallback to browser-based JSON export
+      // Just do the browser-based JSON export
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(configs, null, 2));
       const downloadAnchorNode = document.createElement('a');
       downloadAnchorNode.setAttribute("href", dataStr);
@@ -381,7 +383,12 @@ const App = () => {
       document.body.appendChild(downloadAnchorNode);
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
+      toast.success('Configuration exported as JSON');
       return true;
+    } catch (error) {
+      console.error('Error exporting configurations:', error);
+      toast.error('Failed to export configurations. Check console for details.');
+      return false;
     }
   };
 

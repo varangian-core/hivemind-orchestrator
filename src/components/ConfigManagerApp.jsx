@@ -21,7 +21,6 @@ const ConfigManagerApp = ({
   const [editingConfig, setEditingConfig] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
   const [editingGateway, setEditingGateway] = useState(false);
-  const [isAddingNew, setIsAddingNew] = useState(false);
   
   // Handle file import
   const handleConfigImport = (e) => {
@@ -46,7 +45,6 @@ const ConfigManagerApp = ({
     const success = await onSaveAgent(agentConfig);
     if (success) {
       setEditingConfig(null);
-      setIsAddingNew(false);
     }
   };
   
@@ -55,7 +53,6 @@ const ConfigManagerApp = ({
     const success = await onSaveTask(taskConfig);
     if (success) {
       setEditingTask(null);
-      setIsAddingNew(false);
     }
   };
 
@@ -92,7 +89,6 @@ const ConfigManagerApp = ({
                 <button 
                   onClick={() => {
                     setEditingConfig(agent);
-                    setIsAddingNew(false);
                   }}
                   className="text-gray-500 hover:text-blue-600"
                 >
@@ -152,7 +148,6 @@ const ConfigManagerApp = ({
                 <button 
                   onClick={() => {
                     setEditingTask(task);
-                    setIsAddingNew(false);
                   }}
                   className="text-gray-500 hover:text-blue-600"
                 >
@@ -260,7 +255,6 @@ const ConfigManagerApp = ({
             onSave={handleSaveAgent} 
             onCancel={() => {
               setEditingConfig(null);
-              setIsAddingNew(false);
             }}
           />
         </div>
@@ -273,7 +267,6 @@ const ConfigManagerApp = ({
             onSave={handleSaveTask}
             onCancel={() => {
               setEditingTask(null);
-              setIsAddingNew(false);
             }}
             availableAgents={configs.agents}
           />
@@ -306,7 +299,6 @@ const ConfigManagerApp = ({
               <button 
                 onClick={() => {
                   setEditingConfig({});
-                  setIsAddingNew(true);
                 }}
                 className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
               >
@@ -323,7 +315,6 @@ const ConfigManagerApp = ({
               <button 
                 onClick={() => {
                   setEditingTask({});
-                  setIsAddingNew(true);
                 }}
                 className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
               >

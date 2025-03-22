@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { PlusCircle, Trash2, Save, FileDown, Code } from 'lucide-react';
+import { PlusCircle, Trash2, Code } from 'lucide-react';
 
 const GatewayConfigForm = ({ initialData, onSave, onCancel }) => {
   const [activeTab, setActiveTab] = useState('models');
