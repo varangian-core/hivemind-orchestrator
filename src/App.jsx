@@ -8,6 +8,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:800
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('config');
   const [activeConfigTab, setActiveConfigTab] = useState('agents');
   const [configs, setConfigs] = useState({
     agents: [],
@@ -412,23 +413,40 @@ const App = () => {
       <div className="sidebar">
         <div className="sidebar-header">
           <h2>
-            <img 
-              src="/favicon.ico" 
-              alt="Logo" 
-              className="inline-block mr-2" 
-              style={{ width: '24px', height: '24px' }} 
-            />
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              className="inline-block mr-2"
+              style={{ width: '24px', height: '24px' }}
+            >
+              <rect x="3" y="11" width="18" height="10" rx="2" />
+              <circle cx="12" cy="5" r="2" />
+              <path d="M12 7v4" />
+              <line x1="8" y1="16" x2="8" y2="16" />
+              <line x1="16" y1="16" x2="16" y2="16" />
+            </svg>
             Hivemind Orchestrator
           </h2>
         </div>
         <nav className="sidebar-nav">
-          <div className="nav-item active">
+          <div 
+            className={`nav-item ${activeSection === 'config' ? 'active' : ''}`}
+            onClick={() => setActiveSection('config')}
+          >
             <span className="flex items-center">
               <Settings size={16} className="mr-2" />
               Config
             </span>
           </div>
-          <div className="nav-item">
+          <div 
+            className={`nav-item ${activeSection === 'resources' ? 'active' : ''}`}
+            onClick={() => setActiveSection('resources')}
+          >
             <span className="flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
@@ -437,7 +455,10 @@ const App = () => {
               Resources
             </span>
           </div>
-          <div className="nav-item">
+          <div 
+            className={`nav-item ${activeSection === 'monitoring' ? 'active' : ''}`}
+            onClick={() => setActiveSection('monitoring')}
+          >
             <span className="flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
@@ -450,20 +471,43 @@ const App = () => {
       
       {/* Main Content Area */}
       <div className="main-content">
-        <ConfigManagerApp 
-        configs={configs}
-        activeConfigTab={activeConfigTab}
-        onConfigTabChange={setActiveConfigTab}
-        onSaveAgent={saveAgentConfig}
-        onDeleteAgent={deleteAgentConfig}
-        onSaveTask={saveTaskConfig}
-        onDeleteTask={deleteTaskConfig}
-        onSaveGateway={saveGatewayConfig}
-        onSaveSystem={saveSystemConfig}
-        onImportConfigs={importConfigs}
-        onExportAllConfigs={exportAllConfigs}
-      />
-      <Toaster position="top-right" />
+        {activeSection === 'config' ? (
+          <ConfigManagerApp 
+            configs={configs}
+            activeConfigTab={activeConfigTab}
+            onConfigTabChange={setActiveConfigTab}
+            onSaveAgent={saveAgentConfig}
+            onDeleteAgent={deleteAgentConfig}
+            onSaveTask={saveTaskConfig}
+            onDeleteTask={deleteTaskConfig}
+            onSaveGateway={saveGatewayConfig}
+            onSaveSystem={saveSystemConfig}
+            onImportConfigs={importConfigs}
+            onExportAllConfigs={exportAllConfigs}
+          />
+        ) : (
+          <div className="container">
+            <div className="content">
+              <div className="text-center py-16">
+                <h2 className="text-2xl font-bold mb-4">
+                  {activeSection === 'resources' ? 'Resources' : 'Monitoring'} Coming Soon
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  We're working hard to bring you this feature. Stay tuned!
+                </p>
+                <div className="flex justify-center">
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => setActiveSection('config')}
+                  >
+                    Back to Config
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        <Toaster position="top-right" />
       </div>
     </div>
   );
