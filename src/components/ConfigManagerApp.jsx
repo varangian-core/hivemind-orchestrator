@@ -232,7 +232,7 @@ const ConfigManagerApp = ({
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Agent Orchestrator Configuration</h1>
+        <h1 className="text-2xl font-bold">Configuration Manager</h1>
         <div className="flex gap-2">
           <label className="cursor-pointer flex items-center gap-2 bg-gray-100 hover:bg-gray-200 py-2 px-3 rounded-md">
             <Upload size={16} /> Import
@@ -283,30 +283,21 @@ const ConfigManagerApp = ({
         </div>
       )}
 
-      {/* Main tabs when not editing */}
-      {!editingConfig && !editingTask && !editingGateway && (
-        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="agents">Agents</TabsTrigger>
-            <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
-            <TabsTrigger value="gateway">Gateway</TabsTrigger>
-            <TabsTrigger value="system">System</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="agents" className="space-y-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Agent Configurations</h2>
-              <button 
-                onClick={() => {
-                  setEditingConfig({});
-                }}
-                className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
-              >
-                <PlusCircle size={16} /> Add Agent
-              </button>
-            </div>
-            
-            {renderAgentsList()}
+      {/* Config Content */}
+      <div className="space-y-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Agent Configurations</h2>
+          <button 
+            onClick={() => {
+              setEditingConfig({});
+            }}
+            className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+          >
+            <PlusCircle size={16} /> Add Agent
+          </button>
+        </div>
+        
+        {renderAgentsList()}
           </TabsContent>
           
           <TabsContent value="scheduler" className="space-y-6">
