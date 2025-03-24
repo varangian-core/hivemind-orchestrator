@@ -406,13 +406,13 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 grid grid-cols-sidebar">
+    <div className="min-h-screen bg-gray-50 grid grid-cols-[16rem,1fr]">
       {/* Left Navigation */}
-      <nav className="bg-white border-r border-gray-200">
+      <div className="bg-white border-r border-gray-200">
         <div className="h-16 border-b flex items-center px-6">
           <h2 className="text-lg font-semibold">Orchestrator</h2>
         </div>
-        <div className="p-4 space-y-1">
+        <nav className="p-4 space-y-1">
           <button 
             className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100"
           >
@@ -428,11 +428,11 @@ const App = () => {
           >
             Monitoring
           </button>
-        </div>
-      </nav>
+        </nav>
+      </div>
       
-      {/* Main Content */}
-      <div className="grid grid-rows-[auto,1fr]">
+      {/* Main Content Area */}
+      <div className="grid grid-rows-[auto,1fr] h-screen">
         <ConfigManagerApp 
         configs={configs}
         activeConfigTab={activeConfigTab}

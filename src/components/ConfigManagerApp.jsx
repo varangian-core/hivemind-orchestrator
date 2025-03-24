@@ -41,9 +41,9 @@ const ConfigManagerApp = ({
   };
 
   return (
-      <div className="container mx-auto p-6 grid grid-rows-main gap-6">
+      <div className="h-full flex flex-col">
         {/* Top Navigation */}
-        <div className="sticky top-0 h-16 border-b bg-white z-10">
+        <div className="sticky top-0 h-16 border-b bg-white z-10 flex-shrink-0">
           <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
             <h1 className="text-xl font-semibold">Configuration Manager</h1>
             <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ const ConfigManagerApp = ({
         )}
 
         {/* Secondary Navigation */}
-        <div className="sticky top-16 h-12 border-b bg-white z-10">
+        <div className="sticky top-16 h-12 border-b bg-white z-10 flex-shrink-0">
           <div className="h-full max-w-7xl mx-auto px-6 flex items-center">
             <nav className="flex space-x-6">
               <button
@@ -145,7 +145,7 @@ const ConfigManagerApp = ({
         </div>
 
         {/* Config Content */}
-        <div className="space-y-8">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8">
           {activeConfigTab === 'agents' && (
               <section>
                 <div className="flex justify-between items-center mb-4">
