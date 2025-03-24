@@ -409,14 +409,15 @@ const App = () => {
       {/* Left Navigation */}
       <nav className="w-64 bg-white border-r border-gray-200 p-4">
         <div className="space-y-1">
-          <button className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100">
+          <button 
+            className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100"
+          >
             Configs
           </button>
-          <button className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-100">
-            Resources
-          </button>
-          <button className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-100">
-            Metrics
+          <button 
+            className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-100"
+          >
+            Monitoring
           </button>
         </div>
       </nav>
