@@ -41,7 +41,7 @@ const ConfigManagerApp = ({
   };
 
   return (
-      <div className="container mx-auto p-6 grid grid-rows-[auto,1fr] gap-6">
+      <div className="container mx-auto p-6 grid grid-rows-main gap-6">
         {/* Top Navigation */}
         <div className="sticky top-0 h-16 border-b bg-white z-10">
           <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">

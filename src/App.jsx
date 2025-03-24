@@ -406,7 +406,7 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 grid grid-cols-[16rem,1fr]">
+    <div className="min-h-screen bg-gray-50 grid grid-cols-sidebar">
       {/* Left Navigation */}
       <nav className="bg-white border-r border-gray-200">
         <div className="h-16 border-b flex items-center px-6">
