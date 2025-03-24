@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Settings } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import ConfigManagerApp from './components/ConfigManagerApp';
+import Resources from './components/Resources';
 
 // eslint-disable-next-line no-unused-vars
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
@@ -485,12 +486,14 @@ const App = () => {
             onImportConfigs={importConfigs}
             onExportAllConfigs={exportAllConfigs}
           />
+        ) : activeSection === 'resources' ? (
+          <Resources configs={configs} />
         ) : (
           <div className="container">
             <div className="content">
               <div className="text-center py-16">
                 <h2 className="text-2xl font-bold mb-4">
-                  {activeSection === 'resources' ? 'Resources' : 'Monitoring'} Coming Soon
+                  Monitoring Coming Soon
                 </h2>
                 <p className="text-gray-600 mb-6">
                   We're working hard to bring you this feature. Stay tuned!
