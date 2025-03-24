@@ -47,49 +47,7 @@ const ConfigManagerApp = ({
   };
 
   return (
-    <div className="h-full flex">
-      {/* Sidebar with Primary Navigation */}
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h2>
-            <img 
-              src="/favicon.ico" 
-              alt="Logo" 
-              className="inline-block mr-2" 
-              style={{ width: '24px', height: '24px' }} 
-            />
-            Hivemind Orchestrator
-          </h2>
-        </div>
-        <nav className="sidebar-nav">
-          <div className="nav-item active" onClick={() => console.log('Config clicked')}>
-            <span className="flex items-center">
-              <Settings size={16} className="mr-2" />
-              Config
-            </span>
-          </div>
-          <div className="nav-item" onClick={() => console.log('Resources clicked')}>
-            <span className="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-              </svg>
-              Resources
-            </span>
-          </div>
-          <div className="nav-item" onClick={() => console.log('Monitoring clicked')}>
-            <span className="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-              </svg>
-              Monitoring
-            </span>
-          </div>
-        </nav>
-      </div>
-      
-      {/* Main Content Area */}
-      <div className="main-content">
+    <div className="main-content">
         {/* Show forms when editing */}
         {editingConfig && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-75 z-50 flex items-center justify-center p-4">
@@ -376,7 +334,6 @@ const ConfigManagerApp = ({
             accept=".json" 
           />
         </div>
-      </div>
     </div>
   );
 };
