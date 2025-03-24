@@ -151,21 +151,27 @@ const AgentConfigForm = ({ onSave, initialData }) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Agent Configuration</CardTitle>
-        <CardDescription>Define the behavior and capabilities of this agent</CardDescription>
-        <div className="flex justify-end gap-2">
-          <label className="cursor-pointer flex items-center gap-2 bg-gray-100 hover:bg-gray-200 py-1 px-3 rounded text-sm">
-            <Upload size={16} />
-            Import
-            <input type="file" className="hidden" onChange={handleImport} accept=".json" />
-          </label>
-          <button 
-            onClick={toggleJsonView}
-            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 py-1 px-3 rounded text-sm"
-          >
-            <Code size={16} />
-            {jsonView ? 'Form View' : 'JSON View'}
-          </button>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>Agent Configuration</CardTitle>
+            <CardDescription className="text-gray-600">
+              Define the behavior and capabilities of this agent
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <label className="cursor-pointer flex items-center gap-2 bg-gray-50 hover:bg-gray-100 py-2 px-3 rounded text-sm text-gray-700">
+              <Upload size={16} />
+              Import
+              <input type="file" className="hidden" onChange={handleImport} accept=".json" />
+            </label>
+            <button 
+              onClick={toggleJsonView}
+              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 py-2 px-3 rounded text-sm text-gray-700"
+            >
+              <Code size={16} />
+              {jsonView ? 'Form View' : 'JSON View'}
+            </button>
+          </div>
         </div>
       </CardHeader>
 

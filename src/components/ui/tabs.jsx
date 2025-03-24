@@ -38,7 +38,7 @@ const Tabs = ({ children, defaultValue, value, onValueChange, className }) => {
 
 const TabsList = ({ children, className, activeTab, onTabChange }) => {
   return (
-    <div className={`flex border-b ${className || ''}`}>
+    <div className={`flex h-10 ${className || ''}`}>
       {React.Children.map(children, child => {
         if (!React.isValidElement(child)) return child;
         
@@ -57,7 +57,9 @@ const TabsTrigger = ({ children, value, activeTab, onTabChange, className }) => 
   return (
     <button
       type="button"
-      className={`px-4 py-2 ${isActive ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-blue-500'} ${className || ''}`}
+      className={`px-4 h-10 flex items-center text-sm ${isActive 
+        ? 'border-b-2 border-blue-500 text-blue-600 font-medium' 
+        : 'text-gray-600 hover:text-blue-500 hover:bg-gray-50'} transition-colors ${className || ''}`}
       onClick={() => onTabChange(value)}
     >
       {children}

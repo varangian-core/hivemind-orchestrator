@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Settings } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import ConfigManagerApp from './components/ConfigManagerApp';
 
@@ -406,33 +407,49 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 grid grid-cols-[16rem,1fr]">
-      {/* Left Navigation */}
-      <div className="bg-white border-r border-gray-200">
-        <div className="h-16 border-b flex items-center px-6">
-          <h2 className="text-lg font-semibold">Orchestrator</h2>
+    <div className="app-container">
+      {/* Sidebar with Primary Navigation */}
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h2>
+            <img 
+              src="/favicon.ico" 
+              alt="Logo" 
+              className="inline-block mr-2" 
+              style={{ width: '24px', height: '24px' }} 
+            />
+            Hivemind Orchestrator
+          </h2>
         </div>
-        <nav className="p-4 space-y-1">
-          <button 
-            className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100"
-          >
-            Configs
-          </button>
-          <button 
-            className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-100"
-          >
-            Resources
-          </button>
-          <button 
-            className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-100"
-          >
-            Monitoring
-          </button>
+        <nav className="sidebar-nav">
+          <div className="nav-item active">
+            <span className="flex items-center">
+              <Settings size={16} className="mr-2" />
+              Config
+            </span>
+          </div>
+          <div className="nav-item">
+            <span className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              Resources
+            </span>
+          </div>
+          <div className="nav-item">
+            <span className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg>
+              Monitoring
+            </span>
+          </div>
         </nav>
       </div>
       
       {/* Main Content Area */}
-      <div className="grid grid-rows-[auto,1fr] h-screen">
+      <div className="main-content">
         <ConfigManagerApp 
         configs={configs}
         activeConfigTab={activeConfigTab}
