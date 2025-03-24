@@ -7,6 +7,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:800
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [activeConfigTab, setActiveConfigTab] = useState('agents');
   const [configs, setConfigs] = useState({
     agents: [],
     scheduler: {
@@ -426,6 +427,8 @@ const App = () => {
       <div className="flex-1">
         <ConfigManagerApp 
         configs={configs}
+        activeConfigTab={activeConfigTab}
+        onConfigTabChange={setActiveConfigTab}
         onSaveAgent={saveAgentConfig}
         onDeleteAgent={deleteAgentConfig}
         onSaveTask={saveTaskConfig}

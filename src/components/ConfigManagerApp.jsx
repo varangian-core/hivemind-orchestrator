@@ -6,8 +6,10 @@ import { TaskConfigForm } from './TaskConfigForm';
 import GatewayConfigForm from './GatewayConfigForm';
 
 const ConfigManagerApp = ({ 
-  configs, 
-  onSaveAgent, 
+  configs,
+  activeConfigTab,
+  onConfigTabChange,
+  onSaveAgent,
   onDeleteAgent, 
   onSaveTask, 
   onDeleteTask, 
@@ -16,7 +18,6 @@ const ConfigManagerApp = ({
   onImportConfigs,
   onExportAllConfigs
 }) => {
-  const [activeTab, setActiveTab] = useState('agents');
   const [editingConfig, setEditingConfig] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
   const [editingGateway, setEditingGateway] = useState(false);
@@ -37,6 +38,57 @@ const ConfigManagerApp = ({
       };
       reader.readAsText(file);
     }
+  };
+
+  const renderAgentsList = () => {
+    if (!configs.agents.length) {
+      return (
+        <div className="text-center py-8 text-gray-500">
+          No agents configured yet
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {configs.agents.map(agent => (
+          <Card key={agent.id}>
+            <CardHeader>
+              <CardTitle className="flex justify-between items-center">
+                {agent.name}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setEditingConfig(agent)}
+                    className="text-blue-500 hover:text-blue-600"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    onClick={() => onDeleteAgent(agent.id)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">Model:</span> {agent.model}
+                </div>
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">Role:</span> {agent.role}
+                </div>
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">Goal:</span> {agent.goal}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -89,10 +141,56 @@ const ConfigManagerApp = ({
         </div>
       )}
 
+      {/* Secondary Navigation */}
+      <div className="border-b mb-6">
+        <nav className="flex space-x-4">
+          <button
+            onClick={() => onConfigTabChange('agents')}
+            className={`px-3 py-2 text-sm font-medium ${
+              activeConfigTab === 'agents'
+                ? 'border-blue-500 text-blue-600 border-b-2'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Agents
+          </button>
+          <button
+            onClick={() => onConfigTabChange('tasks')}
+            className={`px-3 py-2 text-sm font-medium ${
+              activeConfigTab === 'tasks'
+                ? 'border-blue-500 text-blue-600 border-b-2'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Tasks
+          </button>
+          <button
+            onClick={() => onConfigTabChange('gateway')}
+            className={`px-3 py-2 text-sm font-medium ${
+              activeConfigTab === 'gateway'
+                ? 'border-blue-500 text-blue-600 border-b-2'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Gateway
+          </button>
+          <button
+            onClick={() => onConfigTabChange('system')}
+            className={`px-3 py-2 text-sm font-medium ${
+              activeConfigTab === 'system'
+                ? 'border-blue-500 text-blue-600 border-b-2'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            System
+          </button>
+        </nav>
+      </div>
+
       {/* Config Content */}
       <div className="space-y-8">
-        {/* Agents Section */}
-        <section>
+        {activeConfigTab === 'agents' && (
+          <section>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Agent Configurations</h2>
             <button 
@@ -103,10 +201,11 @@ const ConfigManagerApp = ({
             </button>
           </div>
           {renderAgentsList()}
-        </section>
+          </section>
+        )}
 
-        {/* Scheduler Section */}
-        <section>
+        {activeConfigTab === 'tasks' && (
+          <section>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Task Scheduler</h2>
             <button 
@@ -117,10 +216,11 @@ const ConfigManagerApp = ({
             </button>
           </div>
           {/* Render Task Scheduler Here */}
-        </section>
+          </section>
+        )}
 
-        {/* Gateway Section */}
-        <section>
+        {activeConfigTab === 'gateway' && (
+          <section>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Gateway Configuration</h2>
             <button 
@@ -145,7 +245,8 @@ const ConfigManagerApp = ({
             </button>
           </div>
           {/* Render System Config Here */}
-        </section>
+          </section>
+        )}
       </div>
     </div>
   );
